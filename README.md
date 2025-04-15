@@ -1,9 +1,10 @@
 # Physical Password Manager
 
 ### Entwicklungsdokumentaion
-1. Erstellen des Projektes mit Compose Multiplatform
-2. Datenmodell Implementieren
+- Erstellen des Projektes mit Compose Multiplatform
+- Datenmodell Implementieren
    - Ordner
    - Eintrag
    - Example Data
-   - interactive GUI
+- interactive GUI
+- icon downloader
