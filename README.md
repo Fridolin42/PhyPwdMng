@@ -6,3 +6,4 @@
    - Ordner
    - Eintrag
    - Example Data
+   - interactive GUI
