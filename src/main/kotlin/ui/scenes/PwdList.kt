@@ -1,4 +1,4 @@
-package ui
+package ui.scenes
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
@@ -17,12 +17,13 @@ import data.Entry
 import data.ExampleData
 import data.Folder
 import ui.Theme.AutoTheme
+import ui.scenes.logic.Scenes
 
-object App {
+object PwdList {
 
     @Composable
     @Preview
-    fun app() {
+    fun show(sceneManager: MutableState<Scenes>) {
         val data by remember { mutableStateOf(ExampleData.getData()) }
         val entries = mutableStateOf(data.entries)
 

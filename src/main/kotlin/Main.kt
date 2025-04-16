@@ -1,17 +1,21 @@
-import ui.App
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import ui.IconGetter
+import ui.scenes.Login
+import ui.scenes.PwdList
+import ui.scenes.logic.Scenes
 
 
 fun main() = application {
-    CoroutineScope(Dispatchers.Default).launch {
-        IconGetter.downloadIcon("https://stackoverflow.com/questions/71980361/how-to-get-a-image-png-with-ktor-client-get-request")
-    }
-    Window(onCloseRequest = ::exitApplication, title = "PhyPwdMng") {
-        App.app()
+    val sceneManager = remember { mutableStateOf(Scenes.LOGIN) }
+//    CoroutineScope(Dispatchers.Default).launch {
+//        IconGetter.downloadIcon("https://stackoverflow.com/questions/71980361/how-to-get-a-image-png-with-ktor-client-get-request")
+//    }
+    Window(onCloseRequest = {exitApplication()}, title = "PhyPwdMng") {
+        when (sceneManager.value) {
+            Scenes.LOGIN -> Login.show(sceneManager) {it == "123456"}
+            Scenes.PWS_LIST -> PwdList.show(sceneManager)
+        }
     }
 }

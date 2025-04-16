@@ -7,4 +7,6 @@
    - Eintrag
    - Example Data
 - interactive GUI
-- icon downloader
+- icon downloader 
+- scene switch logic with an enum
+- basic login scene
