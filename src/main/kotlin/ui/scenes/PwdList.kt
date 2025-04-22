@@ -17,6 +17,7 @@ import data.Entry
 import data.ExampleData
 import data.Folder
 import ui.Theme.AutoTheme
+import ui.elements.Image
 import ui.scenes.logic.Scenes
 
 object PwdList {
@@ -67,6 +68,7 @@ object PwdList {
         Row {
             Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                 for (entry in entries.value) {
+                    Image(entry.website)
                     Text(
                         entry.website, modifier = Modifier.padding(bottom = 8.dp)
                             .background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp).fillMaxWidth()
@@ -83,7 +85,7 @@ object PwdList {
                 }
             }
             Column(modifier = Modifier.width(IntrinsicSize.Max).padding(start = 8.dp)) {
-                for (entry in entries.value) {
+                repeat(entries.value.size) {
                     Text(
                         "<password>",
                         modifier = Modifier.padding(bottom = 8.dp)

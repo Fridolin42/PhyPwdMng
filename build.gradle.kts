@@ -29,6 +29,12 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
     implementation("org.slf4j:slf4j-simple:2.0.17")
+    // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-core
+    implementation("com.twelvemonkeys.imageio:imageio-core:3.12.0")
+    // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-bmp
+    implementation("com.twelvemonkeys.imageio:imageio-bmp:3.12.0")
+    // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-webp
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.12.0")
 }
 
 compose.desktop {
