@@ -1,12 +1,15 @@
 package data
 
-import androidx.compose.animation.scaleOut
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.Parameters
+import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.serialization.json.Json
 import org.jetbrains.skia.Image
@@ -19,7 +22,12 @@ import kotlin.io.path.Path
 import kotlin.io.path.exists
 
 object IconGetter {
-    private val client = HttpClient(CIO)
+    private val client = HttpClient(CIO) {
+        install(HttpRequestRetry) {
+            retryOnServerErrors(maxRetries = 1)
+            exponentialDelay()
+        }
+    }
     private val config: HashMap<String, String>
     private val configFile: File = File("img/config.json")
 
@@ -66,8 +74,22 @@ object IconGetter {
     private suspend fun downloadIcon(url: String): String? {
         println(url)
 
-        val iconURL = getIconURLFromSite(url) // deine eigene Funktion
+        var iconURL = getIconURLFromSite(url) // deine eigene Funktion
         if (iconURL == null) return null
+        println(iconURL)
+        if (!iconURL.startsWith("http")) {
+            iconURL =
+                (if (url.endsWith("/")) url.substringBeforeLast("/") else url) + (if (iconURL.startsWith("/")) iconURL else "/$iconURL")
+//            val protocol = url.substringBefore("//")
+//            iconURL = URLBuilder(
+//                if (protocol == "https") URLProtocol.HTTPS else URLProtocol.HTTP,
+//                url.substringAfter("//").substringBefore("/"),
+//                if (protocol == "https") 443 else 80,
+//                null, null,
+//                iconURL.split("/").filter { it != "." }
+//            ).buildString()
+        }
+        println(iconURL)
 
         try {
             // Ordner anlegen
@@ -98,6 +120,7 @@ object IconGetter {
 
         } catch (e: Exception) {
             println("❌ Fehler beim Herunterladen: ${e.message}")
+            print(e.stackTraceToString())
             return null
         }
 //        println(url)
@@ -127,7 +150,8 @@ object IconGetter {
             if (path.exists()) return path
             config.remove(url)
         }
-        val filePath = downloadIcon(if (url.startsWith("https://") || url.startsWith("http://")) url else "https://$url")
+        val filePath =
+            downloadIcon(if (url.startsWith("https://") || url.startsWith("http://")) url else "https://$url")
         filePath?.let {
             config[url] = it
             saveConfig()

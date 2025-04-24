@@ -21,7 +21,7 @@ repositories {
 dependencies {
     // Note, if you develop a library, you should use compose.desktop.common.
     // compose.desktop.currentOs should be used in launcher-sourceSet
-    // (in a separate module for demo project and in testMain).
+    // (in a separate module for a demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
@@ -35,6 +35,10 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-bmp:3.12.0")
     // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-webp
     implementation("com.twelvemonkeys.imageio:imageio-webp:3.12.0")
+    // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-batik
+    implementation("com.twelvemonkeys.imageio:imageio-batik:3.12.0")
+    // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-svg-dom
+    implementation("org.apache.xmlgraphics:batik-all:1.18")
 }
 
 compose.desktop {
