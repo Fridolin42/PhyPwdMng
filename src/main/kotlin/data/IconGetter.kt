@@ -52,7 +52,13 @@ object IconGetter {
                     "rel=\"apple-touch-icon-precomposed\""
                 )
             }
-            .sortedBy { if (it.contains("sizes=\"")) it.substringAfter("sizes=\"").substringBefore("x").toInt() else 0 }
+            .sortedBy {
+                if (it.contains("sizes=\"")) {
+                    val size = it.substringAfter("sizes=\"").substringBefore("x")
+                    if (size != "any\"") return@sortedBy size.toInt()
+                    else return@sortedBy Int.MAX_VALUE
+                } else 0
+            }
 //        println(htmlIconElements)
         return htmlIconElements.lastOrNull()?.substringAfter("href=\"")?.substringBefore("\"")
     }
@@ -121,8 +127,7 @@ object IconGetter {
             if (path.exists()) return path
             config.remove(url)
         }
-        val filePath =
-            downloadIcon(if (url.startsWith("https://") || url.startsWith("http://")) url else "https://$url")
+        val filePath = downloadIcon(if (url.startsWith("https://") || url.startsWith("http://")) url else "https://$url")
         filePath?.let {
             config[url] = it
             saveConfig()

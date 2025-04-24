@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -68,11 +69,13 @@ object PwdList {
         Row {
             Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                 for (entry in entries.value) {
-                    Image(entry.website)
-                    Text(
-                        entry.website, modifier = Modifier.padding(bottom = 8.dp)
-                            .background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp).fillMaxWidth()
-                    )
+                    Row(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Image(entry.website, modifier = Modifier.size(24.dp).align(Alignment.CenterVertically))
+                        Text(
+                            entry.website, modifier = Modifier.padding(start = 4.dp)
+                                .background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp).fillMaxWidth()
+                        )
+                    }
                 }
             }
             Column(modifier = Modifier.width(IntrinsicSize.Max).padding(start = 8.dp)) {
