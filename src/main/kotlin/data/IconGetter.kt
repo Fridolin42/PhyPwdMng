@@ -78,6 +78,7 @@ object IconGetter {
         if (iconURL == null) return null
         println(iconURL)
         if (!iconURL.startsWith("http")) {
+            iconURL = iconURL.replace("./", "")
             iconURL =
                 (if (url.endsWith("/")) url.substringBeforeLast("/") else url) + (if (iconURL.startsWith("/")) iconURL else "/$iconURL")
 //            val protocol = url.substringBefore("//")
@@ -110,6 +111,12 @@ object IconGetter {
 
             if (image == null) {
                 println("❌ Konnte Bild nicht laden (nicht unterstütztes Format?)")
+                val failFile = File("img/fail/${System.nanoTime()}.txt")
+                if (!failFile.parentFile.exists()) failFile.parentFile.mkdirs()
+                if (!failFile.exists()) failFile.createNewFile()
+                val writer = BufferedWriter(FileWriter(failFile))
+                writer.append(response.bodyAsText())
+                writer.close()
                 return null
             }
 
