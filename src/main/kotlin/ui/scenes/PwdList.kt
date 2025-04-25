@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -36,6 +37,7 @@ object PwdList {
     fun show(sceneManager: MutableState<Scenes>) {
         val data = getExampleData()
         val currentFolder = mutableStateOf(data.entries)
+        val selectedElementIndex = remember { mutableStateOf(-1) }
 //        val entries =  mutableStateListOf<SerializableEntry>()
 //        entries.addAll(data.entries)
 
@@ -45,7 +47,7 @@ object PwdList {
                 Column(
                     modifier = Modifier.background(Color(0xFF888888)).padding(4.dp).fillMaxHeight()
                         .width(IntrinsicSize.Max)
-                ) { folder(data, currentFolder) }
+                ) { folder(data, currentFolder, selectedElementIndex) }
                 Column(modifier = Modifier.padding(start = 8.dp).width(IntrinsicSize.Max)) {
                     Text(
                         "PhyPwdMng",
@@ -53,22 +55,28 @@ object PwdList {
                         modifier = Modifier.padding(bottom = 8.dp).fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    entries(currentFolder)
+                    entries(currentFolder, selectedElementIndex)
                     Spacer(modifier = Modifier.weight(1f))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                         val buttonColors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray, contentColor = Color.Black)
                         Button(colors = buttonColors, onClick = {
-                            EntryManager({
+                            EntryManager {
                                 println(it)
                                 currentFolder.value.add(it)
-                            })
+                            }
                         }) {
                             Text("Add")
                         }
-                        Button(colors = buttonColors, onClick = {}) {
+                        Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
+                            EntryManager(currentFolder.value[selectedElementIndex.value]) {
+                                currentFolder.value[selectedElementIndex.value] = it
+                            }
+                        }) {
                             Text("Edit")
                         }
-                        Button(colors = buttonColors, onClick = {}) {
+                        Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
+                            currentFolder.value.removeAt(selectedElementIndex.value)
+                        }) {
                             Text("Remove")
                         }
                     }
@@ -79,10 +87,11 @@ object PwdList {
 
     @Composable
     @Preview
-    private fun folder(data: Folder, currentFolder: MutableState<SnapshotStateList<Entry>>, padding: Int = 0, path: String = "/") {
+    private fun folder(data: Folder, currentFolder: MutableState<SnapshotStateList<Entry>>, selectedElementIndex: MutableState<Int>, padding: Int = 0, path: String = "/") {
         Box(modifier = Modifier.clickable {
             println(path)
             currentFolder.value = data.entries
+            selectedElementIndex.value = -1
         }) {
             Text(
                 data.name.value,
@@ -94,17 +103,22 @@ object PwdList {
             )
         }
         data.children.forEach {
-            folder(it, currentFolder, padding + 8, "$path${it.name}/")
+            folder(it, currentFolder, selectedElementIndex, padding + 8, "$path${it.name}/")
         }
     }
 
     @Composable
     @Preview
-    private fun entries(entries: MutableState<SnapshotStateList<Entry>>) {
+    private fun entries(entries: MutableState<SnapshotStateList<Entry>>, selectedElementIndex: MutableState<Int>) {
         Row {
             Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                for (entry in entries.value) {
+                entries.value.forEachIndexed { i, entry ->
                     Row(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Checkbox(
+                            selectedElementIndex.value == i,
+                            onCheckedChange = { selectedElementIndex.value = i },
+                            modifier = Modifier.size(20.dp).align(Alignment.CenterVertically).padding(end = 8.dp)
+                        )
                         Image(entry.website.value, modifier = Modifier.size(24.dp).align(Alignment.CenterVertically))
                         Text(
                             entry.website.value, modifier = Modifier.padding(start = 4.dp)
@@ -123,11 +137,10 @@ object PwdList {
                 }
             }
             Column(modifier = Modifier.width(IntrinsicSize.Max).padding(start = 8.dp)) {
-                repeat(entries.value.size) {
+                repeat(entries.value.size) { i ->
                     Text(
                         "<password>",
-                        modifier = Modifier.padding(bottom = 8.dp)
-                            .background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp).fillMaxWidth()
+                        modifier = Modifier.padding(bottom = 8.dp).background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp)
                     )
                 }
             }

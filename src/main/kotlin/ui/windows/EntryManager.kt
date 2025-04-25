@@ -13,7 +13,7 @@ import androidx.compose.ui.window.Window
 import data.structure.Entry
 import windows
 
-class EntryManager(val callback: (entry: Entry) -> Unit, val entry: Entry? = null) : Window {
+class EntryManager(val entry: Entry? = null, val callback: (entry: Entry) -> Unit) : Window {
     init {
         windows.add(this)
     }
