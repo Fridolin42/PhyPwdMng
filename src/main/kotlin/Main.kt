@@ -1,25 +1,19 @@
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.window.Window
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.window.application
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import data.IconGetter
-import ui.scenes.Login
-import ui.scenes.PwdList
-import ui.scenes.logic.Scenes
+import ui.windows.MainWindow
+import ui.windows.Window
 
 
+lateinit var windows: SnapshotStateList<Window>
 fun main() = application {
-    val sceneManager = remember { mutableStateOf(Scenes.LOGIN) }
-//    CoroutineScope(Dispatchers.Default).launch {
-//        IconGetter.downloadIcon("https://stackoverflow.com/questions/71980361/how-to-get-a-image-png-with-ktor-client-get-request")
-//    }
-    Window(onCloseRequest = {exitApplication()}, title = "PhyPwdMng") {
-        when (sceneManager.value) {
-            Scenes.LOGIN -> Login.show(sceneManager) {it == "123456"}
-            Scenes.PWS_LIST -> PwdList.show(sceneManager)
+    windows = remember { mutableStateListOf<Window>() }
+    windows.forEach {
+        key(it) {
+            it.launch()
         }
     }
+    MainWindow.launch()
 }

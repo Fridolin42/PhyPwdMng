@@ -1,11 +1,14 @@
-package data
+package data.exmaple
 
+import data.structure.Folder
+import data.structure.SerializableFolder
+import data.structure.map
 import kotlinx.serialization.json.Json
 
-object ExampleData {
-    fun getData(): Folder {
-        return Json.decodeFromString<Folder>(
+fun getExampleData(): Folder {
+    return map(
+        Json.decodeFromString<SerializableFolder>(
             "{\"name\": \"/\",\"children\": [{\"name\": \"cloud\",\"children\": [],\"entries\": [{\"website\": \"mvnrepository.com\",\"username\": \"test@mail.com\"}]},{\"name\": \"programming\",\"children\": [],\"entries\": [{\"website\": \"jetbrains.com\",\"username\": \"test@mail.com\"}]}],\"entries\": [{\"website\": \"vplan.plus\", \"username\": \"Fridolin\"},{\"website\": \"chat.openai.com\",\"username\": \"test@mail.com\"},{\"website\": \"chefkoch.de\",\"username\": \"max musterman\"}]}"
         )
-    }
+    )
 }
