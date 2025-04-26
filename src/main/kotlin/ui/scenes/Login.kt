@@ -9,13 +9,15 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import sceneManager
 import ui.elements.PasswordField
 import ui.scenes.logic.Scenes
+import ui.scenes.logic.Scene
 
-object Login {
+object Login : Scene {
     @Composable
     @Preview
-    fun show(sceneManager: MutableState<Scenes>, passwordCheck: (String) -> Boolean) {
+    override fun render() {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Column {
                 var pwd by remember { mutableStateOf("") }
@@ -26,4 +28,7 @@ object Login {
             }
         }
     }
+
+    //TODO propper Password check
+    fun passwordCheck(pwd: String) = pwd == "123456"
 }

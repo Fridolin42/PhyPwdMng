@@ -9,7 +9,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,27 +23,22 @@ import androidx.compose.ui.unit.sp
 import data.exmaple.getExampleData
 import data.structure.Entry
 import data.structure.Folder
-import data.structure.SerializableEntry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import sceneManager
 import ui.Theme.AutoTheme
 import ui.elements.Image
+import ui.scenes.logic.Scene
 import ui.scenes.logic.Scenes
-import ui.windows.EntryManager
 
-object PwdList {
+object PwdList: Scene {
+
+    val data = getExampleData()
+    val currentFolder = mutableStateOf(data.entries)
+    val selectedElementIndex = mutableStateOf(-1)
+    var entryManagerAction = ""
 
     @Composable
     @Preview
-    fun show(sceneManager: MutableState<Scenes>) {
-        val data = getExampleData()
-        val currentFolder = mutableStateOf(data.entries)
-        val selectedElementIndex = remember { mutableStateOf(-1) }
-//        val entries =  mutableStateListOf<SerializableEntry>()
-//        entries.addAll(data.entries)
-
-
+    override fun render() {
         AutoTheme {
             Row {
                 Column(
@@ -60,17 +57,14 @@ object PwdList {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                         val buttonColors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray, contentColor = Color.Black)
                         Button(colors = buttonColors, onClick = {
-                            EntryManager {
-                                println(it)
-                                currentFolder.value.add(it)
-                            }
+                            entryManagerAction = "add"
+                            sceneManager.value = Scenes.ENTRY_MANAGER
                         }) {
                             Text("Add")
                         }
                         Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
-                            EntryManager(currentFolder.value[selectedElementIndex.value]) {
-                                currentFolder.value[selectedElementIndex.value] = it
-                            }
+                            entryManagerAction = "edit"
+                            sceneManager.value = Scenes.ENTRY_MANAGER
                         }) {
                             Text("Edit")
                         }
@@ -87,7 +81,13 @@ object PwdList {
 
     @Composable
     @Preview
-    private fun folder(data: Folder, currentFolder: MutableState<SnapshotStateList<Entry>>, selectedElementIndex: MutableState<Int>, padding: Int = 0, path: String = "/") {
+    private fun folder(
+        data: Folder,
+        currentFolder: MutableState<SnapshotStateList<Entry>>,
+        selectedElementIndex: MutableState<Int>,
+        padding: Int = 0,
+        path: String = "/"
+    ) {
         Box(modifier = Modifier.clickable {
             println(path)
             currentFolder.value = data.entries

@@ -1,19 +1,14 @@
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import ui.windows.MainWindow
-import ui.windows.Window
+import ui.scenes.logic.Scenes
+import kotlin.system.exitProcess
 
 
-lateinit var windows: SnapshotStateList<Window>
+val sceneManager: MutableState<Scenes> = mutableStateOf(Scenes.LOGIN)
 fun main() = application {
-    windows = remember { mutableStateListOf<Window>() }
-    windows.forEach {
-        key(it) {
-            it.launch()
-        }
+    Window(onCloseRequest = { exitProcess(0) }, title = "PhyPwdMng") {
+        sceneManager.value.scene.render()
     }
-    MainWindow.launch()
 }

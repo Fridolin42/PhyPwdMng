@@ -1,8 +1,8 @@
-package ui.windows
+package ui.scenes.logic
 
 import androidx.compose.runtime.Composable
 
-interface Window {
+interface Scene {
     @Composable
-    fun launch()
+    fun render()
 }
