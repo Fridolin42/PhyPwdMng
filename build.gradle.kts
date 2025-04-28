@@ -39,6 +39,8 @@ dependencies {
     implementation("com.twelvemonkeys.imageio:imageio-batik:3.12.0")
     // https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-svg-dom
     implementation("org.apache.xmlgraphics:batik-all:1.18")
+    // https://mvnrepository.com/artifact/com.fazecast/jSerialComm
+    implementation("com.fazecast:jSerialComm:2.11.0")
 }
 
 compose.desktop {

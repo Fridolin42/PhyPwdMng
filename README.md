@@ -22,3 +22,5 @@
 - The GUI was updated with three buttons: add, edit and delete for manipulating the entries. The Add button is already created an ``EntryManager`` object, which has a form to add a new entry. (multiple ``EntryManager``s are possible)
 - Add a checkbox group, where you can select one at a time, to edit and delete entries via the variable ``selectedElementIndex``
 - Restructured scene and window logic: now there is only one window where everything happens.
+- SerialPortIO for making request to the Pi
+- connected the get getExampleData() with SerialPortIO
