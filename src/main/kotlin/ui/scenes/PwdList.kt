@@ -12,7 +12,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,20 +20,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import data.exmaple.getExampleData
-import data.structure.Entry
 import data.structure.Folder
+import de.fridolin1.io.serial.SerialPortIO
 import sceneManager
 import ui.Theme.AutoTheme
 import ui.elements.Image
 import ui.scenes.logic.Scene
 import ui.scenes.logic.Scenes
+import javax.swing.JOptionPane
 
-object PwdList: Scene {
+object PwdList : Scene {
 
     val data = getExampleData()
-    val currentFolder = mutableStateOf(data.entries)
+    val currentFolder = mutableStateOf(data)
     val selectedElementIndex = mutableStateOf(-1)
     var entryManagerAction = ""
+    val currentCheckedFolder = mutableStateOf("/")
 
     @Composable
     @Preview
@@ -44,7 +45,11 @@ object PwdList: Scene {
                 Column(
                     modifier = Modifier.background(Color(0xFF888888)).padding(4.dp).fillMaxHeight()
                         .width(IntrinsicSize.Max)
-                ) { folder(data, currentFolder, selectedElementIndex) }
+                ) {
+                    folder(data, currentFolder, selectedElementIndex)
+                    Spacer(modifier = Modifier.weight(1f))
+                    crudControllerFolder()
+                }
                 Column(modifier = Modifier.padding(start = 8.dp).width(IntrinsicSize.Max)) {
                     Text(
                         "PhyPwdMng",
@@ -54,26 +59,7 @@ object PwdList: Scene {
                     )
                     entries(currentFolder, selectedElementIndex)
                     Spacer(modifier = Modifier.weight(1f))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                        val buttonColors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray, contentColor = Color.Black)
-                        Button(colors = buttonColors, onClick = {
-                            entryManagerAction = "add"
-                            sceneManager.value = Scenes.ENTRY_MANAGER
-                        }) {
-                            Text("Add")
-                        }
-                        Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
-                            entryManagerAction = "edit"
-                            sceneManager.value = Scenes.ENTRY_MANAGER
-                        }) {
-                            Text("Edit")
-                        }
-                        Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
-                            currentFolder.value.removeAt(selectedElementIndex.value)
-                        }) {
-                            Text("Remove")
-                        }
-                    }
+                    crudControllerEntries()
                 }
             }
         }
@@ -83,24 +69,29 @@ object PwdList: Scene {
     @Preview
     private fun folder(
         data: Folder,
-        currentFolder: MutableState<SnapshotStateList<Entry>>,
+        currentFolder: MutableState<Folder>,
         selectedElementIndex: MutableState<Int>,
         padding: Int = 0,
-        path: String = "/"
+        path: String = ""
     ) {
         Box(modifier = Modifier.clickable {
             println(path)
-            currentFolder.value = data.entries
+            currentFolder.value = data
             selectedElementIndex.value = -1
         }) {
-            Text(
-                data.name.value,
-                modifier = Modifier
-                    .padding(start = padding.dp, bottom = 4.dp)
-                    .background(Color(0xFFDDDDDD), RoundedCornerShape(4.dp))
-                    .padding(1.dp)
-                    .fillMaxWidth(),
-            )
+            Row {
+                Checkbox(
+                    currentCheckedFolder.value == path,
+                    onCheckedChange = { if (it) currentCheckedFolder.value = path else currentCheckedFolder.value = "/" })
+                Text(
+                    data.name.value,
+                    modifier = Modifier
+                        .padding(start = padding.dp, bottom = 4.dp)
+                        .background(Color(0xFFDDDDDD), RoundedCornerShape(4.dp))
+                        .padding(1.dp)
+                        .fillMaxWidth(),
+                )
+            }
         }
         data.children.forEach {
             folder(it, currentFolder, selectedElementIndex, padding + 8, "$path${it.name}/")
@@ -109,10 +100,10 @@ object PwdList: Scene {
 
     @Composable
     @Preview
-    private fun entries(entries: MutableState<SnapshotStateList<Entry>>, selectedElementIndex: MutableState<Int>) {
+    private fun entries(folder: MutableState<Folder>, selectedElementIndex: MutableState<Int>) {
         Row {
             Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                entries.value.forEachIndexed { i, entry ->
+                folder.value.entries.forEachIndexed { i, entry ->
                     Row(modifier = Modifier.padding(bottom = 8.dp)) {
                         Checkbox(
                             selectedElementIndex.value == i,
@@ -121,28 +112,86 @@ object PwdList: Scene {
                         )
                         Image(entry.website.value, modifier = Modifier.size(24.dp).align(Alignment.CenterVertically))
                         Text(
-                            entry.website.value, modifier = Modifier.padding(start = 4.dp)
+                            entry.website.value, maxLines = 1, modifier = Modifier.padding(start = 4.dp)
                                 .background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp).fillMaxWidth()
                         )
                     }
                 }
             }
             Column(modifier = Modifier.width(IntrinsicSize.Max).padding(start = 8.dp)) {
-                for (entry in entries.value) {
+                for (entry in folder.value.entries) {
                     Text(
-                        entry.username.value,
+                        entry.username.value, maxLines = 1,
                         modifier = Modifier.padding(bottom = 8.dp)
                             .background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp).fillMaxWidth()
                     )
                 }
             }
             Column(modifier = Modifier.width(IntrinsicSize.Max).padding(start = 8.dp)) {
-                repeat(entries.value.size) { i ->
+                repeat(folder.value.entries.size) { i ->
                     Text(
-                        "<password>",
+                        "<password>", maxLines = 1,
                         modifier = Modifier.padding(bottom = 8.dp).background(Color(0xFFEDEDED), RoundedCornerShape(4.dp)).padding(1.dp)
                     )
                 }
+            }
+        }
+    }
+
+    @Preview
+    @Composable
+    fun crudControllerEntries() {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            val buttonColors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray, contentColor = Color.Black)
+            Button(colors = buttonColors, onClick = {
+                entryManagerAction = "add"
+                sceneManager.value = Scenes.ENTRY_MANAGER
+            }) {
+                Text("Add")
+            }
+            Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
+                entryManagerAction = "edit"
+                sceneManager.value = Scenes.ENTRY_MANAGER
+            }) {
+                Text("Edit")
+            }
+            Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
+                currentFolder.value.entries.removeAt(selectedElementIndex.value)
+            }) {
+                Text("Remove")
+            }
+        }
+    }
+
+    @Preview
+    @Composable
+    fun crudControllerFolder() {
+        Column {
+            Button(onClick = {
+                JOptionPane.showInputDialog("Folder name")
+            }) {
+                Text("Add")
+            }
+            Spacer(Modifier.height(4.dp))
+            Button(enabled = currentCheckedFolder.value.isNotEmpty(), onClick = {
+                JOptionPane.showInputDialog("Folder name", currentFolder.value.name)
+            }) {
+                Text("Edit")
+            }
+            Spacer(Modifier.height(4.dp))
+            Button(enabled = currentCheckedFolder.value.isNotEmpty(), onClick = {
+                if (currentCheckedFolder.value == "/") return@Button
+                val state = SerialPortIO.request("/remove/folder $currentCheckedFolder")
+                println(state)
+                var current = data
+                var motherFolder = data
+                for (segment in currentCheckedFolder.value.split("/").filter { it.isNotEmpty() }) {
+                    motherFolder = current
+                    current = current.children.first { it.name.value == segment }
+                }
+                motherFolder.children.remove(current)
+            }) {
+                Text("Remove")
             }
         }
     }
