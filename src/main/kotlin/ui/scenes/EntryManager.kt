@@ -19,7 +19,7 @@ object EntryManager : Scene {
     @Composable
     override fun render() {
         val entry: Entry? =
-            if (PwdList.entryManagerAction == "edit") PwdList.currentFolder.value.elementAtOrNull(PwdList.selectedElementIndex.value) else null
+            if (PwdList.entryManagerAction == "edit") PwdList.currentFolder.value.entries.elementAtOrNull(PwdList.selectedElementIndex.value) else null
         var website by remember { mutableStateOf(entry?.website?.value ?: "") }
         var username by remember { mutableStateOf(entry?.username?.value ?: "") }
         var password by remember { mutableStateOf("") } //TODO think about whether to load the password
@@ -43,7 +43,7 @@ object EntryManager : Scene {
                         entry.website.value = website
                         entry.username.value = username
                     } else
-                        PwdList.currentFolder.value.add(Entry(mutableStateOf(website), mutableStateOf(username)))
+                        PwdList.currentFolder.value.entries.add(Entry(mutableStateOf(website), mutableStateOf(username), System.nanoTime()))
                     sceneManager.value = Scenes.PWS_LIST
                 }) {
                     Text("Save")
