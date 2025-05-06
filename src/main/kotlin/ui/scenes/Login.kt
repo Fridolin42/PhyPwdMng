@@ -21,11 +21,16 @@ object Login : Scene {
     override fun render() {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Column {
-                var pwd by remember { mutableStateOf("") }
-                PasswordField({ pwd = it })
-                Button(onClick = { sceneManager.value = Scenes.PWS_LIST }, content = {
+                val pwd = remember { mutableStateOf("") }
+                PasswordField(pwd, {})
+                Button(onClick = {
+                    if (SerialPortIO.checkPassword(pwd.value))
+                        sceneManager.value = Scenes.PWS_LIST
+                    else
+                        pwd.value = ""
+                }, content = {
                     Text("Login")
-                }, enabled = SerialPortIO.checkPassword(pwd))
+                })
             }
         }
     }

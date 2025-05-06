@@ -25,7 +25,7 @@ object SerialPortIO {
     }
 
     fun checkPassword(password: String): Boolean {
-        writer.write("/login ${sha256(password)}")
+        writer.write("/login ${sha256(password)}\n")
         writer.flush()
         try {
             while (true) {

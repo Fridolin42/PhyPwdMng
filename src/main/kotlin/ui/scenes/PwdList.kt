@@ -20,8 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import data.exmaple.getExampleData
+import data.serial.SerialPortIO
 import data.structure.Folder
-import de.fridolin1.io.serial.SerialPortIO
 import sceneManager
 import ui.Theme.AutoTheme
 import ui.elements.Image

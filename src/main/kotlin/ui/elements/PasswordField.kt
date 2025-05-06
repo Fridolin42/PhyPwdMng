@@ -8,7 +8,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
 @Preview
-fun PasswordField(onTextChanged: (String) -> Unit, modifier: Modifier = Modifier) {
-    var value by remember { mutableStateOf("") }
-    TextField(value, onValueChange = {value = it; onTextChanged(it)}, visualTransformation = PasswordVisualTransformation(), modifier = modifier)
+fun PasswordField(value: MutableState<String>, onTextChanged: (String) -> Unit, modifier: Modifier = Modifier) {
+    TextField(value.value, onValueChange = {value.value = it; onTextChanged(it)}, visualTransformation = PasswordVisualTransformation(), modifier = modifier)
 }
