@@ -181,7 +181,7 @@ object PwdList : Scene {
             Spacer(Modifier.height(4.dp))
             Button(enabled = currentCheckedFolder.value.isNotEmpty(), onClick = {
                 if (currentCheckedFolder.value == "/") return@Button
-                val state = SerialPortIO.request("/remove/folder $currentCheckedFolder")
+                val state = SerialPortIO.request("/remove/folder", "$currentCheckedFolder")
                 println(state)
                 var current = data
                 var motherFolder = data

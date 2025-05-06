@@ -47,8 +47,8 @@ object SerialPortIO {
         throw error("something very strange happened")
     }
 
-    fun request(request: String): String {
-        send(request)
+    fun request(path: String, body: String): String {
+        send(path, body)
         try {
             while (true) {
                 val line = reader.readLine()
@@ -57,7 +57,9 @@ object SerialPortIO {
                     break
                 }
                 println("Received: $line")
-                return line
+                val decrypted = aesModule.decrypt(line)
+                println("Message: $decrypted")
+                return decrypted
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -65,9 +67,15 @@ object SerialPortIO {
         throw error("something very strange happened")
     }
 
-    fun send(message: String) {
-        println("Message sent: $message")
-        writer.write("$message\n")
+    fun send(path: String, message: String) {
+        println("Message raw: $path $message")
+        writer.write(buildString {
+            append(path)
+            append(" ")
+            if (message.isNotEmpty())
+                append(aesModule.encrypt(message))
+            append("\n")
+        })
         writer.flush()
     }
 }
