@@ -3,8 +3,7 @@ package data.exmaple
 import data.structure.Folder
 import data.structure.SerializableFolder
 import data.structure.map
-import de.fridolin1.io.serial.SerialPortIO
-import kotlinx.serialization.decodeFromString
+import data.serial.SerialPortIO
 import kotlinx.serialization.json.Json
 
 fun getExampleData(): Folder {

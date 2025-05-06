@@ -9,6 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import data.serial.SerialPortIO
 import sceneManager
 import ui.elements.PasswordField
 import ui.scenes.logic.Scenes
@@ -24,11 +25,8 @@ object Login : Scene {
                 PasswordField({ pwd = it })
                 Button(onClick = { sceneManager.value = Scenes.PWS_LIST }, content = {
                     Text("Login")
-                }, enabled = passwordCheck(pwd))
+                }, enabled = SerialPortIO.checkPassword(pwd))
             }
         }
     }
-
-    //TODO propper Password check
-    fun passwordCheck(pwd: String) = pwd == "123456"
 }

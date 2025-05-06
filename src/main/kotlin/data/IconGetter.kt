@@ -65,11 +65,12 @@ object IconGetter {
                 } else 0
             }
 //        println(htmlIconElements)
+        println("all icons: $htmlIconElements")
         return htmlIconElements.lastOrNull()?.substringAfter("href=\"")?.substringBefore("\"")
     }
 
     private suspend fun downloadIcon(url: String): String? {
-        println(url)
+        println("website url: $url")
 
         var iconURL = getIconURLFromSite(url) // deine eigene Funktion
         if (iconURL == null) return null
@@ -87,7 +88,7 @@ object IconGetter {
 //                iconURL.split("/").filter { it != "." }
 //            ).buildString()
         }
-        println(iconURL)
+        println("icon url: $iconURL")
 
         try {
             // Ordner anlegen
@@ -168,7 +169,6 @@ object IconGetter {
         val path = getIcon(url, forceDownload)
         if (path == null) return null
         val bytes = Files.readAllBytes(path)
-        println(bytes == null)
         return Image.makeFromEncoded(bytes).toComposeImageBitmap()
     }
 

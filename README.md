@@ -24,3 +24,5 @@
 - Restructured scene and window logic: now there is only one window where everything happens.
 - SerialPortIO for making request to the Pi
 - connected the get getExampleData() with SerialPortIO
+- AES module and checkPassword method in ``SerialPortIO``
+- 
