@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import data.serial.SerialPortIO
 import data.structure.Entry
 import sceneManager
 import ui.scenes.logic.Scene
@@ -39,11 +40,27 @@ object EntryManager : Scene {
             Spacer(modifier = Modifier.Companion.height(40.dp))
             Row {
                 Button(onClick = {
-                    if (entry != null) {
+                    if (PwdList.entryManagerAction == "edit") {
+                        if (entry == null) return@Button
+                        val oldWebsite = entry.website.value
+                        val oldUsername = entry.username.value
                         entry.website.value = website
                         entry.username.value = username
-                    } else
-                        PwdList.currentFolder.value.entries.add(Entry(mutableStateOf(website), mutableStateOf(username), System.nanoTime()))
+                        val status = SerialPortIO.request("/update/entry", getJsonFromEntry(entry, password))
+                        println(status)
+                        if (status != "<success>") {
+                            entry.website.value = oldWebsite
+                            entry.username.value = oldUsername
+                            return@Button
+                        }
+                    } else {
+                        val path = PwdList.currentRenderedFolderPath.value
+                        val newEntry = Entry(mutableStateOf(website), mutableStateOf(username), System.nanoTime())
+                        val status = SerialPortIO.request("/create/entry", "$path ${getJsonFromEntry(newEntry, password)}")
+                        println(status)
+                        if (status != "<success>") return@Button
+                        PwdList.currentFolder.value.entries.add(newEntry)
+                    }
                     sceneManager.value = Scenes.PWS_LIST
                 }) {
                     Text("Save")
@@ -55,6 +72,24 @@ object EntryManager : Scene {
                     Text("Exit")
                 }
             }
+        }
+    }
+
+    fun getJsonFromEntry(entry: Entry, password: String): String {
+        return buildString {
+            append("{")
+            append("\"website\":")
+            append("\"${entry.website.value}\"")
+            append(",")
+            append("\"username\":")
+            append("\"${entry.username.value}\"")
+            append(",")
+            append("\"id\":")
+            append("\"${entry.id}\"")
+            append(",")
+            append("\"password\":")
+            append("\"$password\"")
+            append("}")
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import data.exmaple.getExampleData
 import data.serial.SerialPortIO
+import data.structure.Entry
 import data.structure.Folder
 import sceneManager
 import ui.Theme.AutoTheme
@@ -35,7 +37,8 @@ object PwdList : Scene {
     val currentFolder = mutableStateOf(data)
     val selectedElementIndex = mutableStateOf(-1)
     var entryManagerAction = ""
-    val currentCheckedFolder = mutableStateOf("/")
+    val currentCheckedFolderPath = mutableStateOf("")
+    val currentRenderedFolderPath = mutableStateOf("/")
 
     @Composable
     @Preview
@@ -72,29 +75,36 @@ object PwdList : Scene {
         currentFolder: MutableState<Folder>,
         selectedElementIndex: MutableState<Int>,
         padding: Int = 0,
-        path: String = ""
+        path: String = "/"
     ) {
+        println("render folder path: $path")
         Box(modifier = Modifier.clickable {
-            println(path)
+            println("clicked folder path: $path")
+            currentRenderedFolderPath.value = path
             currentFolder.value = data
             selectedElementIndex.value = -1
         }) {
-            Row {
+            Row(modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 12.dp, end = 12.dp)) {
                 Checkbox(
-                    currentCheckedFolder.value == path,
-                    onCheckedChange = { if (it) currentCheckedFolder.value = path else currentCheckedFolder.value = "/" })
+                    currentCheckedFolderPath.value == path,
+                    onCheckedChange = {
+                        currentCheckedFolderPath.value = if (it) path else ""
+                        println("clicked checbox path: ${currentCheckedFolderPath.value}")
+                    }, modifier = Modifier.size(20.dp)
+                )
                 Text(
                     data.name.value,
                     modifier = Modifier
-                        .padding(start = padding.dp, bottom = 4.dp)
+                        .padding(start = (12 + padding).dp)
                         .background(Color(0xFFDDDDDD), RoundedCornerShape(4.dp))
                         .padding(1.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .align(Alignment.CenterVertically)
                 )
             }
         }
         data.children.forEach {
-            folder(it, currentFolder, selectedElementIndex, padding + 8, "$path${it.name}/")
+            folder(it, currentFolder, selectedElementIndex, padding + 8, "$path${it.name.value}/")
         }
     }
 
@@ -166,30 +176,58 @@ object PwdList : Scene {
     @Preview
     @Composable
     fun crudControllerFolder() {
-        Column {
-            Button(onClick = {
-                JOptionPane.showInputDialog("Folder name")
+        Column(modifier = Modifier.fillMaxWidth()) {
+            //Add
+            Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
+                val name = mutableStateOf(JOptionPane.showInputDialog("Folder name"))
+                if (name.value == null) return@Button
+                val children = SnapshotStateList<Folder>()
+                val entries = SnapshotStateList<Entry>()
+                val newFolder = Folder(name, children, entries)
+                val status = SerialPortIO.request("/create/folder", "/ ${name.value}")
+                println(status)
+                if (status == "<success>")
+                    data.children.add(newFolder)
             }) {
                 Text("Add")
             }
+
             Spacer(Modifier.height(4.dp))
-            Button(enabled = currentCheckedFolder.value.isNotEmpty(), onClick = {
-                JOptionPane.showInputDialog("Folder name", currentFolder.value.name)
+            //Edit
+            Button(modifier = Modifier.align(Alignment.CenterHorizontally), enabled = currentCheckedFolderPath.value.length > 1, onClick = {
+                val folderPath = currentCheckedFolderPath.value
+                println("folder path: $folderPath")
+                val currentName = folderPath.substringAfterLast("/")
+                println("currentName: $currentName")
+                val newName = JOptionPane.showInputDialog("Folder name", currentName)
+                if (newName == null) return@Button
+                val status = SerialPortIO.request("/update/folder", "$folderPath $newName")
+                println(status)
+                if (status == "<success>")
+                    currentFolder.value.name.value = newName
             }) {
                 Text("Edit")
             }
+
             Spacer(Modifier.height(4.dp))
-            Button(enabled = currentCheckedFolder.value.isNotEmpty(), onClick = {
-                if (currentCheckedFolder.value == "/") return@Button
-                val state = SerialPortIO.request("/remove/folder", "$currentCheckedFolder")
+            //Remove
+            Button(modifier = Modifier.align(Alignment.CenterHorizontally), enabled = currentCheckedFolderPath.value.length > 1, onClick = {
+                val folderPath = currentCheckedFolderPath.value
+                println("folder path: $folderPath")
+                if (folderPath == "/") return@Button
+                val state = SerialPortIO.request("/delete/folder", folderPath)
                 println(state)
+                if (state != "<success>") return@Button
                 var current = data
                 var motherFolder = data
-                for (segment in currentCheckedFolder.value.split("/").filter { it.isNotEmpty() }) {
+                for (segment in folderPath.split("/").filter { it.isNotEmpty() }) {
                     motherFolder = current
                     current = current.children.first { it.name.value == segment }
                 }
+//                val status = SerialPortIO.request("/delete/folder", folderPath)
+//                if (status == "<success>")
                 motherFolder.children.remove(current)
+                current.entries.clear()
             }) {
                 Text("Remove")
             }
