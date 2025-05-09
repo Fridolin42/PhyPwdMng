@@ -25,4 +25,5 @@
 - SerialPortIO for making request to the Pi
 - connected the get getExampleData() with SerialPortIO
 - AES module and checkPassword method in ``SerialPortIO``
+- Key exchange with RSA
 - 

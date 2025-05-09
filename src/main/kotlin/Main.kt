@@ -2,6 +2,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import data.serial.SerialPortIO
 import ui.scenes.EntryManager
 import ui.scenes.Login
 import ui.scenes.PwdList
@@ -11,6 +12,7 @@ import kotlin.system.exitProcess
 
 val sceneManager: MutableState<Scenes> = mutableStateOf(Scenes.LOGIN)
 fun main() = application {
+    SerialPortIO.keyExchange()
     Window(onCloseRequest = { exitProcess(0) }, title = "PhyPwdMng") {
         when (sceneManager.value) {
             Scenes.LOGIN -> Login.render()
