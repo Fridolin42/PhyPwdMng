@@ -7,6 +7,8 @@ import ui.scenes.EntryManager
 import ui.scenes.Login
 import ui.scenes.PwdList
 import ui.scenes.logic.Scenes
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
 import kotlin.system.exitProcess
 
 
@@ -20,4 +22,10 @@ fun main() = application {
             Scenes.ENTRY_MANAGER -> EntryManager.render()
         }
     }
+}
+
+fun copyToClipboard(text: String) {
+    val selection = StringSelection(text)
+    val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+    clipboard.setContents(selection, selection)
 }

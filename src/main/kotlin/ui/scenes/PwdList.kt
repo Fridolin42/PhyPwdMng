@@ -20,6 +20,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import copyToClipboard
 import data.exmaple.getExampleData
 import data.serial.SerialPortIO
 import data.structure.Entry
@@ -53,7 +54,7 @@ object PwdList : Scene {
                     Spacer(modifier = Modifier.weight(1f))
                     crudControllerFolder()
                 }
-                Column(modifier = Modifier.padding(start = 8.dp).width(IntrinsicSize.Max)) {
+                Column(modifier = Modifier.padding(start = 8.dp).fillMaxWidth()) {
                     Text(
                         "PhyPwdMng",
                         style = TextStyle(fontSize = 32.sp),
@@ -169,6 +170,20 @@ object PwdList : Scene {
                 currentFolder.value.entries.removeAt(selectedElementIndex.value)
             }) {
                 Text("Remove")
+            }
+
+            Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
+                val username = currentFolder.value.entries[selectedElementIndex.value].username.value
+                copyToClipboard(username)
+            }) {
+                Text("Copy Username")
+            }
+            Button(enabled = selectedElementIndex.value != -1, colors = buttonColors, onClick = {
+                val id = currentFolder.value.entries[selectedElementIndex.value].id
+                val password = SerialPortIO.request("/get/password", id.toString())
+                copyToClipboard(password)
+            }) {
+                Text("Copy Password")
             }
         }
     }
